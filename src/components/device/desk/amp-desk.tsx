@@ -7,7 +7,7 @@ import { FxCatalog } from "../../../spork/src/interfaces/preset";
 import { AppStateStore } from "../../../stores/appstate";
 import { DeviceStateStore } from "../../../stores/devicestate";
 import { TunerStateStore } from "../../../stores/tunerstate";
-import { deviceViewModel } from "../../app";
+import { appViewModel, deviceViewModel } from "../../app";
 import ToneChooserModal from "../../soundshed/tone-chooser-modal";
 import LooperPanel from "../looper/looper-panel";
 import TunerPanel from "../tuner/tuner-panel";
@@ -63,6 +63,9 @@ const AmpDesk = (props: AmpDeskProps) => {
   const storeCatalog: FxCatalog | null = DeviceStateStore.useState((s) => s.fxCatalog);
   const numSlots: number = AppStateStore.useState((s) => s.numPresetSlots);
   const tunerEnabled = TunerStateStore.useState((s) => s.isEnabled);
+  const keepAwake: boolean = AppStateStore.useState((s) => s.keepAmpAwake == true);
+  const keepAwakeLastSent: number | null = DeviceStateStore.useState((s) => s.keepAwakeLastSent);
+  const keepAwakeError: string | null = DeviceStateStore.useState((s) => s.keepAwakeLastError);
 
   const catalog = React.useMemo(() => storeCatalog ?? FxCatalogProvider.getFxCatalog(), [storeCatalog]);
   const blocks = React.useMemo(() => buildDeskBlocks(tone, catalog), [tone, catalog]);
@@ -351,6 +354,10 @@ const AmpDesk = (props: AmpDeskProps) => {
         onToggleHelp={toggleHelp}
         helpPopover={<ShortcutsHelp onClose={() => closeHelp(true)} />}
         notice={notice}
+        keepAwake={keepAwake}
+        keepAwakeLastSent={keepAwakeLastSent}
+        keepAwakeError={keepAwakeError}
+        onToggleKeepAwake={() => appViewModel.setKeepAmpAwake(!keepAwake)}
       />
 
       {tunerVisible && (

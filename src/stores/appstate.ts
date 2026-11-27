@@ -15,5 +15,7 @@ export const AppStateStore = new Store({
     selectedMidiInput: null,
     midiListenAllInputs: false,
     lastMidiEvent:null,
-    numPresetSlots: 4
+    numPresetSlots: 4,
+    /** Experimental: query the amp periodically while connected (see core/keepAwake.ts) */
+    keepAmpAwake: false
 });

@@ -259,6 +259,36 @@ export class SparkDeviceManager implements DeviceController {
         }
     }
 
+    // ---- keep awake ----
+
+    // Sends the experimental keep-alive query (the read-only serial number request,
+    // request_info 0x23; see core/keepAwake.ts). Like setTunerEnabled it resolves false
+    // when the write fails, so the keep-awake status can't claim a send that never left.
+    public async sendKeepAlive(): Promise<boolean> {
+        const run = this.commandChain.then(
+            () => this.writeKeepAlive(),
+            () => this.writeKeepAlive());
+
+        this.commandChain = run.then(() => { }, () => { });
+
+        return run;
+    }
+
+    private async writeKeepAlive(): Promise<boolean> {
+        this.log("Sending keep-alive (device serial query)");
+        const msgArray = new SparkCommandMessage({ spark2: this.isSpark2 }).request_info(0x23);
+        try {
+            for (let dat of msgArray) {
+                this.log("[SEND RAW]: " + this.buf2hex(dat));
+                await this.connection.write(typeof (Buffer) != "undefined" ? Buffer.from(dat) : dat);
+            }
+            return true;
+        } catch (err) {
+            console.warn("Caught err writing keep-alive", err);
+            return false;
+        }
+    }
+
     private commandChain: Promise<any> = Promise.resolve();
 
     private async executeCommand(type, data) {

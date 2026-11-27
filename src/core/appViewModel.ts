@@ -100,6 +100,7 @@ export class AppViewModel {
         let midiListenAllInputs = false;
         let midiControlMappings: InputEventMapping[] = [];
         let numPresetSlots = 4;
+        let keepAmpAwake = false;
         let settings = localStorage.getItem("settings");
         if (settings != null) {
             // settings to load
@@ -124,6 +125,8 @@ export class AppViewModel {
                 numPresetSlots = settingsParsed.numPresetSlots;
             }
 
+            keepAmpAwake = settingsParsed.keepAmpAwake == true;
+
         }
 
         // CC / effect mappings live in their own list so the legacy table never edits them
@@ -139,6 +142,7 @@ export class AppViewModel {
             s.selectedMidiInput = selectedMidiInput;
             s.midiListenAllInputs = midiListenAllInputs;
             s.numPresetSlots = numPresetSlots;
+            s.keepAmpAwake = keepAmpAwake;
         });
 
     }
@@ -152,10 +156,17 @@ export class AppViewModel {
             midiListenAllInputs: allSettings.midiListenAllInputs,
             inputEventMappings: allSettings.inputEventMappings,
             midiControlMappings: allSettings.midiControlMappings,
-            numPresetSlots: allSettings.numPresetSlots
+            numPresetSlots: allSettings.numPresetSlots,
+            keepAmpAwake: allSettings.keepAmpAwake == true
         };
 
         localStorage.setItem("settings", JSON.stringify(settings));
+    }
+
+    /** Switches the experimental keep-awake queries on or off and saves the setting. */
+    setKeepAmpAwake(enabled: boolean) {
+        AppStateStore.update(s => { s.keepAmpAwake = enabled; });
+        this.saveSettings();
     }
 
 

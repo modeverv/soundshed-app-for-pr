@@ -25,6 +25,7 @@ The amp screen is laid out for a desktop window (with the tuner closed and the l
 - **Signal chain**: the 7 blocks (Gate, Comp, Drive, Amp, Mod, Delay, Reverb) as tiles with their on/off switch. Selecting a block opens it below with large knobs that always show their value (0–10).
 - **Model browser**: *Change model…* shows the models for that block with pictures. Search by model name, the gear that inspired it or category (e.g. "marshall", "fuzz").
 - **Tuner** drawer and a collapsible **Looper** dock on a Spark 2 (also shown, with an explanation, when the amp model is not recognised).
+- **Keep awake (experimental)**: a top-bar toggle (also under Settings > Amp). While on and connected, Soundshed sends the read-only serial number query (GET `23`) right away and then every 10 minutes, and shows the time of the last one (in the tooltip only on windows narrower than 1400 px). This is the first time the app sends that query. Whether this stops the amp's auto standby / auto shutdown is not verified yet. Off by default.
 
 ![Model browser](docs/screens/amp-desk-model-browser.jpg)
 ![Tuner and looper](docs/screens/amp-desk-tuner-looper.jpg)

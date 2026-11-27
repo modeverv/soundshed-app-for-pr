@@ -19,5 +19,9 @@ export const DeviceStateStore = new Store({
     // the amp dropped unexpectedly and hasn't connected again since
     connectionLost: false,
     presetTone: null,
-    fxCatalog: null
+    fxCatalog: null,
+    // Keep-awake queries (core/keepAwake.ts): Date.now() of the last one the amp
+    // accepted, and why the last one failed (null once one succeeds again).
+    keepAwakeLastSent: null as number | null,
+    keepAwakeLastError: null as string | null
 });

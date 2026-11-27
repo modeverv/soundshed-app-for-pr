@@ -14,7 +14,7 @@ import { VIRTUAL_CHANNEL } from "../../core/sparkChannels";
 // tests; here they are stand-ins so only the screen's own behaviour is exercised.
 vi.mock("../app", () => ({
   deviceViewModel: {},
-  appViewModel: {},
+  appViewModel: { setKeepAmpAwake: vi.fn() },
   DeviceViewModelContext: React.createContext(null),
 }));
 vi.mock("../soundshed/tone-chooser-modal", () => ({
@@ -24,7 +24,9 @@ vi.mock("../device/tuner/tuner-panel", () => ({ default: () => <div data-testid=
 vi.mock("../device/looper/looper-panel", () => ({ default: () => <div data-testid="looper-panel" /> }));
 
 import AmpDesk, { AmpDeskProps } from "../device/desk/amp-desk";
+import { appViewModel } from "../app";
 import { isTypingTarget } from "../device/desk/keyboard-targets";
+import { formatKeepAwakeTime } from "../device/desk/top-bar";
 
 const P = "pg.spark40.";
 const catalog = FxCatalogProvider.getFxCatalog();
@@ -540,6 +542,24 @@ describe("top bar", () => {
     expect(screen.queryByTestId("tuner-panel")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Tuner" }));
     expect(screen.getByTestId("tuner-panel")).toBeInTheDocument();
+  });
+
+  it("switches keep awake through the app view model and shows the last query time", async () => {
+    const user = userEvent.setup();
+    const sent = new Date(2026, 0, 1, 12, 3).getTime();
+    act(() => AppStateStore.update((s) => { s.keepAmpAwake = false; }));
+    setDevice({ keepAwakeLastSent: sent, keepAwakeLastError: null });
+    renderDesk();
+
+    const toggle = screen.getByRole("button", { name: /keep awake/i });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await user.click(toggle);
+    expect(appViewModel.setKeepAmpAwake).toHaveBeenCalledWith(true);
+
+    act(() => AppStateStore.update((s) => { s.keepAmpAwake = true; }));
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(toggle).toHaveTextContent(formatKeepAwakeTime(sent));
+    act(() => AppStateStore.update((s) => { s.keepAmpAwake = false; }));
   });
 });
 

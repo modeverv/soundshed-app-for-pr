@@ -14,6 +14,7 @@ const SettingsControl = () => {
   const selectedMidiInput = AppStateStore.useState((s) => s.selectedMidiInput);
 
   const midiInputs = AppStateStore.useState((s) => s.midiInputs);
+  const keepAmpAwake: boolean = AppStateStore.useState((s) => s.keepAmpAwake == true);
 
   React.useEffect(() => {}, [inputEventMappings, midiInputs]);
 
@@ -214,6 +215,26 @@ const SettingsControl = () => {
       </div>
 
       <MidiMappingPanel />
+
+      {/* ── Amp ── */}
+      <div className="settings-section glass-panel">
+        <div className="settings-section-header">
+          <div>
+            <h2 className="settings-section-title">Amp</h2>
+            <p className="settings-section-desc">
+              Experimental: while on and an amp is connected, Soundshed queries the amp every 10 minutes to try to stop it powering off (not yet verified to prevent auto standby).
+            </p>
+          </div>
+        </div>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.82rem" }}>
+          <input
+            type="checkbox"
+            checked={keepAmpAwake}
+            onChange={(e) => appViewModel.setKeepAmpAwake(e.target.checked)}
+          />
+          Keep awake (experimental)
+        </label>
+      </div>
 
       {enableTestMode && (
         <div className="settings-section glass-panel">
