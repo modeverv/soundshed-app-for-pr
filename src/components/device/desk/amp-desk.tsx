@@ -1,6 +1,7 @@
 import React from "react";
 import { getLooperSupport } from "../../../core/looperViewModel";
 import { VIRTUAL_CHANNEL } from "../../../core/sparkChannels";
+import { getMixerViewModel } from "../../../core/mixerViewModel";
 import { getTunerViewModel } from "../../../core/tunerViewModel";
 import { FxCatalogProvider } from "../../../spork/src/devices/spark/sparkFxCatalog";
 import { FxCatalog } from "../../../spork/src/interfaces/preset";
@@ -10,6 +11,7 @@ import { TunerStateStore } from "../../../stores/tunerstate";
 import { deviceViewModel } from "../../app";
 import ToneChooserModal from "../../soundshed/tone-chooser-modal";
 import LooperPanel from "../looper/looper-panel";
+import MixerPanel from "../mixer/mixer-panel";
 import TunerPanel from "../tuner/tuner-panel";
 import { KnobChangePhase } from "./amp-knob";
 import ChainStrip, { tabIdFor } from "./chain-strip";
@@ -21,8 +23,9 @@ import SaveSlotPicker from "./save-slot-picker";
 import ShortcutsHelp from "./shortcuts-help";
 import TopBar, { DeskNotice } from "./top-bar";
 
-// Desktop amp screen: top bar, the seven-block chain, an inspector for the
-// selected block (with the model browser over it) and a collapsible looper dock.
+// Desktop amp screen: top bar (with tuner and experimental mixer drawers), the
+// seven-block chain, an inspector for the selected block (with the model browser
+// over it) and a collapsible looper dock.
 // Talks to the amp only through the callbacks device-main passes in.
 
 export interface FxParamChangeArgs {
@@ -74,6 +77,7 @@ const AmpDesk = (props: AmpDeskProps) => {
   const [saving, setSaving] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const [tunerOpen, setTunerOpen] = React.useState(false);
+  const [mixerOpen, setMixerOpen] = React.useState(false);
   const [looperOpen, setLooperOpen] = React.useState(false);
   const [toneChooserOpen, setToneChooserOpen] = React.useState(false);
   const [notice, setNotice] = React.useState<DeskNotice | null>(null);
@@ -221,6 +225,12 @@ const AmpDesk = (props: AmpDeskProps) => {
     }
   };
 
+  // Created with the amp screen, so the mixer's acks and 0x03 0x6b input volume
+  // notifications are counted even before its drawer is opened. Never sends by itself.
+  React.useEffect(() => {
+    getMixerViewModel();
+  }, []);
+
   // Closes the topmost popover; false when nothing was open.
   const closeTopPopover = () => {
     if (helpOpen) closeHelp(true);
@@ -346,6 +356,8 @@ const AmpDesk = (props: AmpDeskProps) => {
         onBrowseTones={() => setToneChooserOpen(true)}
         tunerOpen={tunerVisible}
         onToggleTuner={toggleTuner}
+        mixerOpen={mixerOpen}
+        onToggleMixer={() => setMixerOpen((o) => !o)}
         helpOpen={helpOpen}
         helpButtonRef={helpButtonRef}
         onToggleHelp={toggleHelp}
@@ -356,6 +368,12 @@ const AmpDesk = (props: AmpDeskProps) => {
       {tunerVisible && (
         <div id="amp-desk-tuner" className="amp-desk-drawer">
           <TunerPanel />
+        </div>
+      )}
+
+      {mixerOpen && (
+        <div id="amp-desk-mixer" className="amp-desk-drawer amp-desk-drawer--mixer">
+          <MixerPanel isSpark2={looperSupport == "spark2"} />
         </div>
       )}
 
