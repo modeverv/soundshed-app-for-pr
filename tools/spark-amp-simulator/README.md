@@ -19,6 +19,10 @@ Node.js protocol-level Spark simulator that can emulate multiple Spark amp model
   - `01 01` upload preset (chunked)
   - `01 38` switch preset
   - basic ACK behavior for effect/amp swaps and toggle commands
+  - experimental mixer: `01 33` (channel + float, optional trailing `00`) stores the
+    channel volume and is acked with `04 33`; a change on channel 0 (guitar) is also
+    reported as `03 6b`. `02 33 [channel]` replies `03 33 [float]` (defaults: guitar 0.5,
+    music 0.5, master 0.7; unknown channels get no reply)
 - Spark 2 specific behavior:
   - chunk ACK `cmd 05` for non-final preset chunks
   - final chunk ACK `cmd 04`
