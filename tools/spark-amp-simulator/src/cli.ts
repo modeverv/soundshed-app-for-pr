@@ -153,6 +153,7 @@ function createTui(
             fmt("Stored Presets", String(state.storedPresets)),
             fmt("Pending Upload", state.pendingUpload),
             fmt("Upload Complete", String(state.uploadCompleted)),
+            fmt("Tuner", state.tunerEnabled ? "on (streaming 03 64)" : "off"),
             fmt("Last Command", `${formatCmd(state.lastCmd)} / ${formatCmd(state.lastSubCmd)}`),
             fmt("Response Count", String(state.lastResponses))
         ];
@@ -511,6 +512,7 @@ async function main() {
         } else {
             console.log("Shutting down simulator...");
         }
+        simulator.dispose();
         if (server) {
             await server.stop();
         }

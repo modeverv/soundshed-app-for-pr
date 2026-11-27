@@ -32,7 +32,7 @@ The amp screen is laid out for a desktop window (with the tuner closed and the l
 ![Model browser](docs/screens/amp-desk-model-browser.jpg)
 ![Tuner and looper](docs/screens/amp-desk-tuner-looper.jpg)
 
-*(Tuner and looper captured against a locally patched simulator that sends tuner readings and looper state; the bundled simulator does not.)*
+*(Tuner and looper captured against a locally patched simulator that also sends looper state. The bundled simulator now streams tuner readings, but it still only acknowledges looper commands.)*
 
 Knobs: drag up/down (hold Shift, Cmd or Ctrl for fine steps), use the mouse wheel (Shift for fine steps) or the arrow keys (Shift ×10), PageUp/PageDown, Home/End. Double-click resets to the model default; double-click the value or press Enter to type one.
 
@@ -172,7 +172,7 @@ inputs.soundshed.packages.${pkgs.stdenv.hostPlatform.system}.default
 5. Start the app and run device scan/connect as normal. The app will show a virtual TCP simulator device instead of opening the BLE chooser.
 6. To switch back to real hardware BLE, set `SparkTransport: "ble"`.
 
-The simulator covers presets, channels, model changes, parameters and on/off switches. It only acknowledges tuner and looper commands: it never sends tuner readings or looper state, so the tuner shows no note and the looper no position or loop count against it. Over TCP the app spaces commands only 50 ms apart, while its BLE provider waits at least 500 ms between writes (`minWaitTimeMSBetweenCommands` in `bleProvider.ts`), so check timing-sensitive changes on hardware.
+The simulator covers presets, channels, model changes, parameters and on/off switches. While its tuner is on it streams a tuner reading (`03 64`) every 60 ms, like the real amp, with a "no signal" reading (note 0, offset -1.0) now and then, and it answers the tuner state query (`02 65`). It only acknowledges looper commands: it never sends looper state, so the looper shows no position or loop count against it. Over TCP the app spaces commands only 50 ms apart, while its BLE provider waits at least 500 ms between writes (`minWaitTimeMSBetweenCommands` in `bleProvider.ts`), so check timing-sensitive changes on hardware.
 
 ### Headless TCP Comms Test
 - Run `npm run sim:spark:test` to start a temporary TCP simulator and exercise spork comms encode/decode flows without launching the app UI.
