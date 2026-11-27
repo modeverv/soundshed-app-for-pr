@@ -14,8 +14,8 @@ import { IMixerChannelState, MixerStateStore } from "../../../stores/mixerstate"
 // Amp mixer diagnostics drawer (Guitar / Music sliders, reads, acks, 0x03 0x6b, the
 // trailing 0x00 switch and a custom channel). Everyday control is the nav bar's
 // knobs (global-mixer-controls.tsx); both share MixerStateStore so they stay in sync.
-// Styled like the tuner drawer and looper dock: the app's control-strip classes,
-// btn and CSS variables.
+// Styled like the tuner drawer: the app's control-strip classes, btn and CSS
+// variables.
 //
 // Nothing is sent until the user moves a slider. Opening the panel only reads.
 

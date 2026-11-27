@@ -1,6 +1,6 @@
 import React from "react";
-import { getLooperSupport } from "../../../core/looperViewModel";
 import { VIRTUAL_CHANNEL } from "../../../core/sparkChannels";
+import { isSpark2DeviceName } from "../../../core/sparkModels";
 import { getTunerViewModel } from "../../../core/tunerViewModel";
 import { FxCatalogProvider } from "../../../spork/src/devices/spark/sparkFxCatalog";
 import { FxCatalog } from "../../../spork/src/interfaces/preset";
@@ -9,7 +9,6 @@ import { DeviceStateStore } from "../../../stores/devicestate";
 import { TunerStateStore } from "../../../stores/tunerstate";
 import { deviceViewModel } from "../../app";
 import ToneChooserModal from "../../soundshed/tone-chooser-modal";
-import LooperPanel from "../looper/looper-panel";
 import MixerPanel from "../mixer/mixer-panel";
 import TunerPanel from "../tuner/tuner-panel";
 import { KnobChangePhase } from "./amp-knob";
@@ -26,7 +25,7 @@ import TopBar, { DeskNotice } from "./top-bar";
 
 // Desktop amp screen: top bar (with tuner and experimental mixer drawers), the
 // seven-block chain, an inspector for the selected block (with the model browser
-// over it) and a collapsible looper dock.
+// over it).
 // Talks to the amp only through the callbacks device-main passes in.
 
 export interface FxParamChangeArgs {
@@ -98,7 +97,6 @@ const AmpDesk = (props: AmpDeskProps) => {
   } | null>(null);
   const [tunerOpen, setTunerOpen] = React.useState(false);
   const [mixerOpen, setMixerOpen] = React.useState(false);
-  const [looperOpen, setLooperOpen] = React.useState(false);
   const [toneChooserOpen, setToneChooserOpen] = React.useState(false);
   const [notice, setNotice] = React.useState<DeskNotice | null>(null);
 
@@ -405,11 +403,10 @@ const AmpDesk = (props: AmpDeskProps) => {
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [saveOpen, helpOpen, renameOpen]);
 
-  // ---- looper dock (Spark 2 only; "unknown" models get the panel's own explanation)
+  // ---- Spark 2 detection (the mixer's trailing-zero default depends on it)
 
   const deviceManager = (deviceViewModel as any)?.deviceContext?.deviceManager ?? null;
-  const looperSupport = getLooperSupport(connected, connectedDevice?.name, !!deviceManager?.isSpark2Device?.());
-  const showLooper = looperSupport == "spark2" || looperSupport == "unknown";
+  const isSpark2 = connected && (!!deviceManager?.isSpark2Device?.() || isSpark2DeviceName(connectedDevice?.name));
 
   return (
     <div className="amp-desk">
@@ -480,7 +477,7 @@ const AmpDesk = (props: AmpDeskProps) => {
 
       {mixerOpen && (
         <div id="amp-desk-mixer" className="amp-desk-drawer amp-desk-drawer--mixer">
-          <MixerPanel isSpark2={looperSupport == "spark2"} />
+          <MixerPanel isSpark2={isSpark2} />
         </div>
       )}
 
@@ -517,25 +514,6 @@ const AmpDesk = (props: AmpDeskProps) => {
             No preset selected — amp may not be connected. Connect and refresh to load current amp settings. You may
             need to select a preset on the amp first.
           </p>
-        </div>
-      )}
-
-      {showLooper && (
-        <div className={`amp-desk-dock ${looperOpen ? "is-open" : ""}`}>
-          <button
-            type="button"
-            className="amp-desk-dock__toggle"
-            aria-expanded={looperOpen}
-            aria-controls="amp-desk-looper"
-            onClick={() => setLooperOpen((o) => !o)}
-          >
-            Looper {looperOpen ? "▾" : "▸"}
-          </button>
-          {looperOpen && (
-            <div id="amp-desk-looper" className="amp-desk-dock__body">
-              <LooperPanel />
-            </div>
-          )}
         </div>
       )}
 

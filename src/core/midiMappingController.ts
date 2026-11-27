@@ -145,7 +145,7 @@ export class MidiMappingController {
         this.mixer = mixer;
     }
 
-    /** Lets other features handle their own target types (e.g. tuner or looper). */
+    /** Lets other features handle their own target types (e.g. the tuner). */
     registerTargetHandler(type: string, handler: MidiTargetHandler) {
         return this.engine.registerTargetHandler(type, handler);
     }

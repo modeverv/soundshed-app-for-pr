@@ -3,7 +3,7 @@
 Desktop and Web UI which can be used to:
 - manage tone library and browse tone communities
 - connect to supported amp via bluetooth, edit the signal chain, store presets to the amp's channels
-- use the amp's tuner and, on a Spark 2, its looper
+- use the amp's tuner
 - drive effect parameters, on/off switches and channels from MIDI controllers and expression pedals
 - browse and favourite video backing tracks
 
@@ -19,20 +19,20 @@ Windows 10 or later, macOS 13 (Ventura) or later, and supported Linux distributi
 ![Amp screen](docs/screens/amp-desk.jpg)
 
 ### Amp screen
-The amp screen is laid out for a desktop window (with the tuner closed and the looper collapsed it fits 1280×860 without scrolling, and it works down to about 1024 px wide):
+The amp screen is laid out for a desktop window (with the tuner closed it fits 1280×860 without scrolling, and it works down to about 1024 px wide):
 
 - **Top bar**: the connected amp, channels 1–8 on a Spark 2 (1–4 on other models; hover a channel for its last known name this session), a *Live* marker while an applied tone is not stored yet, **Rename** (✎ next to the tone name, or F2), Refresh, **Save to Amp** (edit the name, pick a channel, confirm before overwriting), Favourite, Browse Tones, the tuner and the mixer diagnostics drawer.
 - **Rename**: the Spark has no command that renames a preset, so renaming a stored channel saves the whole channel to the amp under the new name, including knob changes you haven't saved yet. The dialog says so, warns when there are unsaved changes and then offers *Rename here only*. After the save the app reads the channel back and shows whether the amp reports the new name. On a *Live* tone, or with no amp connected, only the name on screen changes; it goes to the amp with the next Save to Amp, whose Name field can also be used to rename. Names are 1–40 characters of basic ASCII (letters, numbers, spaces and symbols such as `- _ . ( )`); the amp reports other characters back as spaces, so they are not accepted. A favourite keeps its old name until you press Favourite again, which updates it. Renaming was reported working on a Spark 2 in a hardware test; whether that test included switching the amp off and on was not recorded (see the checks below).
 - **Signal chain**: the 7 blocks (Gate, Comp, Drive, Amp, Mod, Delay, Reverb) as tiles with their on/off switch. Selecting a block opens it below with large knobs that always show their value (0–10).
 - **Model browser**: *Change model…* shows the models for that block with pictures. Search by model name, the gear that inspired it or category (e.g. "marshall", "fuzz").
-- **Tuner** drawer and a collapsible **Looper** dock on a Spark 2 (also shown, with an explanation, when the amp model is not recognised).
+- **Tuner** drawer: the *Tuner* button switches the amp's tuner on and shows the note and how many cents sharp or flat you are.
 - **Guitar / Music volume (experimental)**: while an amp is connected, the right end of the navigation bar (on every page) has a small knob and a mute button for **Guitar** and **Music**, showing each level as a percentage ("—" until the amp has reported it). They send the Spark mixer message (`01 33`, channel 0 for Guitar, 5 for Music). A user's hardware test confirmed both channels on a Spark 2 (whether the trailing `00` byte mattered was not recorded); other models are untested. When the amp connects the app reads both levels once (`02 33`, read only); no level is ever sent until you turn a knob or press mute. The amp has no mute command, so **mute** sets the level to 0 and remembers it, and unmute restores it (if the level was unknown, unmute leaves it at 0). Turning a muted knob unmutes at the new level, and a level above 0 reported by the amp (a `03 6B` guitar input volume, or a read reply) ends the mute; whether a Spark 2 reports its own GUITAR / MUSIC knobs at all is unknown. If a mute or unmute does not reach the amp, the button goes back to what the amp has and the channel is marked (hover it for the message). A mute survives a reconnect of the same amp in the same session; levels and mutes are not saved. The knobs work like the amp screen's (drag, wheel, arrow keys, PageUp/PageDown, Home), except that End does nothing, so a stray key can never jump to full volume, and that dragging right raises the level as well as dragging up (100 px for the full range), as there is little room above the navigation bar. Right-click a knob or mute button (or press Shift+F10 / the context menu key while it has focus) for **MIDI Learn**: *Learn* assigns the next MIDI control you move to it, replacing the control's mapping rather than adding another, *Clear* removes that control's mappings (see [MIDI Learn & Continuous Control](#midi-learn--continuous-control)).
 - **Mixer diagnostics**: the *Mixer* button opens a drawer with Guitar and Music sliders (kept in sync with the nav-bar knobs), *Read from amp* (shows each value or "no reply"), the count of mixer acks (`04 33`) and the last input volume the amp reported (`03 6B`). *Advanced* has a switch for the Spark 2 style trailing `00` byte and a custom channel to probe (e.g. 9, Master on the Spark LIVE, which was not tested). See [the protocol notes](docs/spark-amp-protocol.md#mixer-0x33--experimental).
 
 ![Model browser](docs/screens/amp-desk-model-browser.jpg)
-![Tuner and looper](docs/screens/amp-desk-tuner-looper.jpg)
+![Tuner drawer](docs/screens/amp-desk-tuner.jpg)
 
-*(Tuner and looper captured against a locally patched simulator that also sends looper state. The bundled simulator now streams tuner readings, but it still only acknowledges looper commands.)*
+*(The tuner drawer open above the signal chain, captured against the bundled simulator, which streams tuner readings like the amp.)*
 
 Knobs: drag up/down (hold Shift, Cmd or Ctrl for fine steps), use the mouse wheel (Shift for fine steps) or the arrow keys (Shift ×10), PageUp/PageDown, Home/End. Double-click resets to the model default; double-click the value or press Enter to type one.
 
@@ -172,7 +172,7 @@ inputs.soundshed.packages.${pkgs.stdenv.hostPlatform.system}.default
 5. Start the app and run device scan/connect as normal. The app will show a virtual TCP simulator device instead of opening the BLE chooser.
 6. To switch back to real hardware BLE, set `SparkTransport: "ble"`.
 
-The simulator covers presets, channels, model changes, parameters and on/off switches. While its tuner is on it streams a tuner reading (`03 64`) every 60 ms, like the real amp, with a "no signal" reading (note 0, offset -1.0) now and then, and it answers the tuner state query (`02 65`). It only acknowledges looper commands: it never sends looper state, so the looper shows no position or loop count against it. Over TCP the app spaces commands only 50 ms apart, while its BLE provider waits at least 500 ms between writes (`minWaitTimeMSBetweenCommands` in `bleProvider.ts`), so check timing-sensitive changes on hardware.
+The simulator covers presets, channels, model changes, parameters and on/off switches. While its tuner is on it streams a tuner reading (`03 64`) every 60 ms, like the real amp, with a "no signal" reading (note 0, offset -1.0) now and then, and it answers the tuner state query (`02 65`). Over TCP the app spaces commands only 50 ms apart, while its BLE provider waits at least 500 ms between writes (`minWaitTimeMSBetweenCommands` in `bleProvider.ts`), so check timing-sensitive changes on hardware.
 
 ### Headless TCP Comms Test
 - Run `npm run sim:spark:test` to start a temporary TCP simulator and exercise spork comms encode/decode flows without launching the app UI.
@@ -206,8 +206,8 @@ assert the values survive. A regression in either the bit packing or the chunk
 reassembly fails the round trip rather than silently corrupting amp state.
 
 The rest are regression tests for specific fixes, such as Spark 2 detection,
-reconnecting, applying tones, and the Jam and ToneCloud searches. Tuner
-and looper have their own protocol, view model and panel tests; MIDI mapping
+reconnecting, applying tones, and the Jam and ToneCloud searches. The tuner
+has its own protocol, view model and panel tests; MIDI mapping
 has mapping-logic, controller and panel tests.
 The amp screen has component tests in `src/components/__tests__/` (knob
 input, signal chain, model browser, save picker, keyboard guards), and
