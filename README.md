@@ -111,7 +111,7 @@ Settings > *MIDI Learn & Continuous Control* maps expression pedals, knobs and f
 The final installable app is packaged using electron-forge:
 `npm run make`
 
-To build just the app bundle, run `npm run build-electron` and then `npx electron-forge package`; on macOS this produces `out/Soundshed-darwin-<arch>/Soundshed.app` with the Soundshed name and icon. When started with `npm run start-electron` the stock Electron app runs, so macOS shows "Electron" as the app name (the Dock icon is still set to Soundshed's).
+To build just the app bundle, run `npm run build-electron` and then `npx electron-forge package`; on macOS this produces `out/Soundshed-darwin-<arch>/Soundshed.app` with the Soundshed name and icon. `npm run start-electron` runs the stock Electron app from `node_modules`. On macOS it first renames that bundle to Soundshed (`tools/dev/set-electron-bundle-name.js`), and the app sets its Dock icon, so the menu bar and Dock show Soundshed in development too. The process is still called "Electron" in Activity Monitor.
 
 App icons live in `images/icon/`: `favicon.ico` for Windows, and `icon.icns` for macOS, built from `icon-1024.png` with `iconutil`. The macOS icon uses Apple's 824 px continuous-corner template shape; otherwise macOS 26 and later shrinks it onto a grey plate.
 
