@@ -2309,10 +2309,10 @@ select:focus {
 
 /* amp-desk screen ------------------------------------------------------
    Desktop amp screen from src/components/device/desk/ (top bar, chain strip,
-   inspector, model browser, popovers, looper dock). Everything is scoped
+   inspector, model browser, popovers). Everything is scoped
    under .amp-desk so .fx, .preset-name, .control-strip etc. keep their look
-   elsewhere. Sized so 1280x860 needs no vertical scroll (tuner closed,
-   looper collapsed) and still fits down to ~1024 px wide. */
+   elsewhere. Sized so 1280x860 needs no vertical scroll (tuner closed)
+   and still fits down to ~1024 px wide. */
 .amp-desk {
     --desk-panel:      rgba(17,17,17,0.92);
     --desk-panel-2:    rgba(24,24,24,0.95);
@@ -2679,7 +2679,7 @@ select:focus {
     padding: 0.5rem 1rem;
 }
 
-/* experimental amp mixer drawer (looks like the looper dock) */
+/* experimental amp mixer drawer */
 .amp-desk-drawer--mixer {
     max-height: 42vh;
     overflow: auto;
@@ -3250,7 +3250,7 @@ select:focus {
     color: var(--text-faint);
 }
 
-/* no preset / looper dock */
+/* no preset */
 .amp-desk-nopreset {
     flex: 1 1 auto;
     display: flex;
@@ -3260,37 +3260,6 @@ select:focus {
 .amp-desk-nopreset p {
     max-width: 520px;
     margin: 0;
-}
-.amp-desk-dock {
-    flex: none;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--desk-panel);
-}
-.amp-desk-dock__toggle {
-    width: 100%;
-    height: 30px;
-    padding: 0 14px;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 0.74rem;
-    font-weight: 600;
-    text-align: left;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-}
-.amp-desk-dock__toggle:hover {
-    color: var(--text);
-}
-.amp-desk-dock__body {
-    max-height: 42vh;
-    overflow: auto;
-    padding: 0 12px;
-}
-.amp-desk-dock__body .looper-panel {
-    margin: 0 0 12px !important;
 }
 
 /* narrower windows (down to ~1024 px) */

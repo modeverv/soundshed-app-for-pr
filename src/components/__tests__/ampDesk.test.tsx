@@ -10,7 +10,7 @@ import { FxCatalogProvider } from "../../spork/src/devices/spark/sparkFxCatalog"
 import { VIRTUAL_CHANNEL } from "../../core/sparkChannels";
 
 // amp-desk.tsx pulls deviceViewModel from components/app, which would drag in the
-// whole application on import. The tone chooser, tuner, mixer and looper have their own
+// whole application on import. The tone chooser, tuner and mixer have their own
 // tests; here they are stand-ins so only the screen's own behaviour is exercised.
 vi.mock("../app", () => ({
   deviceViewModel: {},
@@ -21,7 +21,6 @@ vi.mock("../soundshed/tone-chooser-modal", () => ({
   default: ({ show }: { show: boolean }) => (show ? <div data-testid="tone-chooser" /> : null),
 }));
 vi.mock("../device/tuner/tuner-panel", () => ({ default: () => <div data-testid="tuner-panel" /> }));
-vi.mock("../device/looper/looper-panel", () => ({ default: () => <div data-testid="looper-panel" /> }));
 vi.mock("../device/mixer/mixer-panel", () => ({
   default: ({ isSpark2 }: { isSpark2?: boolean }) => <div data-testid="mixer-panel" data-spark2={String(!!isSpark2)} />,
 }));
@@ -825,27 +824,6 @@ describe("rename", () => {
     const ch3 = screen.getByRole("button", { name: "Channel 3" });
     expect(ch3).toHaveAttribute("title", "Channel 3: Fuzz Lead");
     expect(screen.getByRole("button", { name: "Channel 1" })).toHaveAttribute("title", "Channel 1");
-  });
-});
-
-describe("looper dock", () => {
-  it("is collapsed by default on a Spark 2", async () => {
-    const user = userEvent.setup();
-    setDevice({ connectedDevice: { name: "Spark 2", address: "amp-1" } });
-    renderDesk();
-
-    const toggle = screen.getByRole("button", { name: /looper/i });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByTestId("looper-panel")).toBeNull();
-
-    await user.click(toggle);
-    expect(screen.getByTestId("looper-panel")).toBeInTheDocument();
-  });
-
-  it("is not shown on a Spark 40", () => {
-    renderDesk();
-
-    expect(screen.queryByRole("button", { name: /looper/i })).toBeNull();
   });
 });
 

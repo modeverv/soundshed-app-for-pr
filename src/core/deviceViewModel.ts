@@ -170,7 +170,7 @@ export class DeviceViewModel {
                     this.log("Ignoring preset data from the amp, an applied tone is live on the virtual channel");
                 } else if (!args.message || args.message.type == 'preset') {
                     // The reader keeps the last preset it parsed and sends it along with
-                    // every later message (fx_param_msg, hardware_bpm, looper_*, ...), so
+                    // every later message (fx_param_msg, hardware_bpm, ...), so
                     // only a preset reply (or an event with no message) says anything new.
                     // Replacing the tone from the repeated copy would undo a rename or an
                     // edit made since, so those messages are applied to the current tone

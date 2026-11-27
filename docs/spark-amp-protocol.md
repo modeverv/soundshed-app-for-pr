@@ -311,24 +311,6 @@ The amp's built-in tuner (the amp is muted while it runs). The messages follow I
 - **note**: pitch class `C = 0 … B = 11` (taken `% 12`); `0e` means no note.
 - **offset**: `0.0 … 1.0` across one semitone, `cents = offset × 100 − 50`, clamped to ±50. The app treats ±5 cents as in tune.
 
-### Looper (Spark 2)
-
-The Spark 2's built-in looper, following Ignitron's `SparkMessage.cpp` / `SparkStreamReader.cpp`; see `src/spork/src/devices/spark/sparkLooper.ts`.
-
-| Direction | cmd / sub | Payload |
-|-----------|-----------|---------|
-| App → Amp | `01 75` | command byte |
-| App → Amp | `01 76` | settings (below) |
-| App → Amp | `02 75` / `02 76` / `02 78` | *(none)*: request record status / settings / status |
-| Amp → App | `03 75` | command byte the amp executed |
-| Amp → App | `03 76` | settings |
-| Amp → App | `03 77` | float: loop position `0 … 1` |
-| Amp → App | `03 78` | bpm, count, bars, loops, 2 unknown |
-
-**Settings**: `bpm` (uint8, `cc` prefix when ≥ 128), `count` (`04` straight, `03` shuffle), `bars`, then `free`, `click` and an unknown flag as on/off (`c3` / `c2`), then max duration as `cd` + uint16 big endian (ms, 60000 by default).
-
-**Command bytes**: CountIn `02`, Record `04`, StopRecord `05`, Retry `06`, RecordComplete `07`, Play `08`, Stop `09`, Delete `0a`, Dub `0b`, StopDub `0c`, Undo `0d`, Redo `0e`.
-
 ### Mixer (0x33) — experimental
 
 Channel volumes of the amp's mixer (guitar input, music/Bluetooth playback, master). Documented for the **Spark LIVE** in paulhamsh/SparkBox [`SparkIO.ino`](https://github.com/paulhamsh/SparkBox) (L1078–1098, commit 91f5608), and reported (unverified) to change the guitar volume on a **Spark GO** on channel 0 by [lucanenni/spark-go-utils](https://github.com/lucanenni/spark-go-utils). See `src/spork/src/interfaces/mixer.ts` and `src/core/mixerViewModel.ts`.
