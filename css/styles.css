@@ -2168,8 +2168,11 @@ select:focus {
 .amp-desk-topbar {
     flex: none;
     display: flex;
+    /* the tone name and actions drop to a second row rather than squeezing the name away */
+    flex-wrap: wrap;
     align-items: center;
     gap: 14px;
+    row-gap: 6px;
     min-height: 48px;
     padding: 6px 10px 6px 14px;
     background: var(--desk-panel);
@@ -2240,7 +2243,7 @@ select:focus {
     letter-spacing: 0.08em;
 }
 .amp-desk-topbar__tone {
-    flex: 1 1 auto;
+    flex: 1 1 140px;
     min-width: 0;
     display: flex;
     align-items: center;
@@ -2269,6 +2272,7 @@ select:focus {
     align-items: center;
     gap: 6px;
     flex: none;
+    margin-left: auto;
 }
 .amp-desk-anchor {
     position: relative;
@@ -2297,6 +2301,19 @@ select:focus {
     width: 30px;
     padding: 0;
     font-weight: 700;
+}
+.amp-desk-keepawake {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+}
+.amp-desk-keepawake--error {
+    color: var(--red);
+    font-weight: 700;
+    opacity: 1;
+}
+@media (max-width: 1399px) {
+    /* only the dot (or the error mark) below 1400 px, so switching on barely widens the bar */
+    .amp-desk-keepawake:not(.amp-desk-keepawake--error) .amp-desk-keepawake__text { display: none; }
 }
 
 /* popovers (save to amp, shortcuts) */
@@ -2985,7 +3002,7 @@ select:focus {
 
 /* narrower windows (down to ~1024 px) */
 @media (max-width: 1200px) {
-    .amp-desk-topbar { gap: 10px; }
+    .amp-desk-topbar { column-gap: 10px; }
     .amp-desk-topbar__label { display: none; }
     .amp-desk-topbar__tone-name { font-size: 1.15rem; }
     .amp-desk-inspector { grid-template-columns: minmax(200px, 250px) minmax(0, 1fr); gap: 16px; }

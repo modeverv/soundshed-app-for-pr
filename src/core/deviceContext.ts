@@ -144,6 +144,10 @@ export class DeviceContext {
             return this.deviceManager.sendCommand("get_device_serial", {});
         }
 
+        if (args.action == 'keepAwakePing') {
+            return this.deviceManager.sendKeepAlive();
+        }
+
         if (args.action == 'setTuner') {
             return this.deviceManager.setTunerEnabled(args.data === true);
         }

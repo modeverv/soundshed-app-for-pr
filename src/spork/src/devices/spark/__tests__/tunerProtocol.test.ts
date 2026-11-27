@@ -213,6 +213,28 @@ describe("SparkDeviceManager tuner support", () => {
     ]);
   });
 
+  it("sendKeepAlive writes the serial number query, queued behind commands in flight", async () => {
+    const first = manager.sendCommand("get_device_name", {});
+    const keepAlive = manager.sendKeepAlive();
+    await expect(Promise.all([first, keepAlive])).resolves.toEqual([undefined, true]);
+
+    expect(connection.written.map((w) => Array.from(w))).toEqual([
+      ...new SparkCommandMessage().request_info(0x11).map((b) => Array.from(b)),
+      ...new SparkCommandMessage().request_info(0x23).map((b) => Array.from(b)),
+    ]);
+  });
+
+  it("sendKeepAlive resolves false when the write fails", async () => {
+    connection.write = async () => {
+      throw new Error("GATT write failed");
+    };
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await expect(manager.sendKeepAlive()).resolves.toBe(false);
+
+    warn.mockRestore();
+  });
+
   it("reports tuner messages from the amp through onStateChanged", async () => {
     const seen: DeviceState[] = [];
     manager.onStateChanged = (s: DeviceState) => seen.push({ ...s });

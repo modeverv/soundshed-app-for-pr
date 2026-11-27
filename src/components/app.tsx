@@ -26,6 +26,7 @@ import { DeviceStateStore } from "../stores/devicestate";
 import { LessonStateStore } from "../stores/lessonstate";
 import { UIFeatureToggleStore } from "../stores/uifeaturetoggles";
 import { useWakeLock } from "../core/wakeLock";
+import { useAmpKeepAwake } from "../core/keepAwake";
 import AboutControl from "./about";
 import DeviceMainControl from "./device/device-main";
 import DeviceSelectorControl from "./device/device-selector";
@@ -56,6 +57,8 @@ const App = () => {
 
   const isConnected = DeviceStateStore.useState((s) => s.isConnected);
   useWakeLock(isConnected);
+  // Experimental, off by default: periodic queries to try to stop the amp powering off.
+  useAmpKeepAwake();
 
   const playingVideoUrl = LessonStateStore.useState((s) => s.playingVideoUrl);
   const [isVideoExpanded, setIsVideoExpanded] = React.useState(true);

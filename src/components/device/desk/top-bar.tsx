@@ -9,6 +9,13 @@ export interface DeskNotice {
   kind: "ok" | "error";
 }
 
+export const KEEP_AWAKE_HELP =
+  "Experimental: while on, Soundshed queries the amp every 10 minutes to try to stop it powering off. " +
+  "Whether this prevents auto standby has not been verified on hardware.";
+
+export const formatKeepAwakeTime = (time: number) =>
+  new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
 interface TopBarProps {
   deviceName: string | null;
   connected: boolean;
@@ -34,6 +41,11 @@ interface TopBarProps {
   onToggleHelp: () => void;
   helpPopover?: React.ReactNode;
   notice: DeskNotice | null;
+  /** Experimental keep-awake queries (see core/keepAwake.ts) */
+  keepAwake: boolean;
+  keepAwakeLastSent: number | null;
+  keepAwakeError: string | null;
+  onToggleKeepAwake: () => void;
 }
 
 const TopBar = (props: TopBarProps) => {
@@ -45,7 +57,19 @@ const TopBar = (props: TopBarProps) => {
     isLive,
     toneName,
     notice,
+    keepAwake,
+    keepAwakeLastSent,
+    keepAwakeError,
   } = props;
+
+  // While on: the time of the last query the amp accepted, or a marker when the last one failed.
+  const keepAwakeStatus = !keepAwake
+    ? null
+    : keepAwakeError
+      ? { text: "!", detail: `Last query failed: ${keepAwakeError}`, error: true }
+      : keepAwakeLastSent != null
+        ? { text: formatKeepAwakeTime(keepAwakeLastSent), detail: `Last query sent at ${formatKeepAwakeTime(keepAwakeLastSent)}.`, error: false }
+        : null;
 
   return (
     <header className="amp-desk-topbar">
@@ -134,6 +158,33 @@ const TopBar = (props: TopBarProps) => {
         >
           Tuner
         </button>
+        {/* The status is hidden from the button's name, which stays "Keep awake"; screen
+            readers get it as the description instead. Narrow windows show only the dot. */}
+        <button
+          type="button"
+          className={`amp-desk-action ${keepAwake ? "is-active" : ""}`}
+          aria-pressed={keepAwake}
+          aria-describedby={keepAwakeStatus ? "amp-desk-keepawake-status" : undefined}
+          title={keepAwakeStatus ? `${KEEP_AWAKE_HELP}\n${keepAwakeStatus.detail}` : KEEP_AWAKE_HELP}
+          onClick={props.onToggleKeepAwake}
+        >
+          Keep awake
+          {keepAwakeStatus && (
+            <span
+              className={`amp-desk-keepawake ${keepAwakeStatus.error ? "amp-desk-keepawake--error" : ""}`}
+              data-testid="keep-awake-status"
+              aria-hidden="true"
+            >
+              {" • "}
+              <span className="amp-desk-keepawake__text">{keepAwakeStatus.text}</span>
+            </span>
+          )}
+        </button>
+        {keepAwakeStatus && (
+          <span id="amp-desk-keepawake-status" className="sr-only">
+            {keepAwakeStatus.detail}
+          </span>
+        )}
         <div className="amp-desk-anchor">
           <button
             ref={props.helpButtonRef}
