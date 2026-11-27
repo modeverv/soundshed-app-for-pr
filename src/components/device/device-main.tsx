@@ -7,6 +7,7 @@ import {
   deviceViewModel as vm,
 } from "../app";
 import DeviceControls from "./device-controls";
+import LooperPanel from "./looper/looper-panel";
 import MiscControls from "./misc-controls";
 import SignalPathControl from "./signal-path";
 import TunerPanel from "./tuner/tuner-panel";
@@ -152,6 +153,7 @@ const DeviceMainControl = () => {
           selectedChannel={selectedChannel}
           onStoreFavourite={requestStoreFavourite}
         />
+        <LooperPanel />
       </div>
     </div>
   );
