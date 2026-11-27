@@ -17,6 +17,8 @@ export interface SparkAmpSimulatorStateSnapshot {
     lastResponses: number;
     serial: string;
     currentPreset: SparkAmpPresetSummary;
+    /** What each hardware slot holds, in slot order */
+    slots: SparkAmpPresetSummary[];
 }
 
 export interface SparkAmpPresetSummary {
@@ -46,6 +48,12 @@ export const SIM_DEFAULT_MIXER_VOLUMES: ReadonlyArray<[number, number]> = [
 
 export interface SparkAmpSimulatorOptions {
     logger?: (msg: string) => void;
+    /**
+     * Ack preset uploads to a hardware slot (slot byte 0..presetSlots-1) but don't store
+     * them, like an amp that ignored the write. Lets the app's "the amp reports a
+     * different name" path be tried. Uploads to the virtual channel (0x7f) still apply.
+     */
+    dropSlotUploads?: boolean;
 }
 
 interface SparkEditableEffect {
@@ -577,6 +585,12 @@ export class SparkAmpSimulator {
         const currentPresetPayload = this.getPresetPayload(this.selectedSlot);
         const currentPreset = this.summarizePresetPayload(currentPresetPayload);
 
+        const slots: SparkAmpPresetSummary[] = [];
+        for (let i = 0; i < this.profile.presetSlots; i++) {
+            const summary = this.summarizePresetPayload(this.getPresetPayload(i));
+            slots.push({ ...summary, slot: i });
+        }
+
         return {
             selectedSlot: this.selectedSlot,
             storedPresets: this.presetBank.size,
@@ -586,7 +600,8 @@ export class SparkAmpSimulator {
             lastSubCmd: this.lastSubCmd,
             lastResponses: this.lastResponses,
             serial: this.serial,
-            currentPreset
+            currentPreset,
+            slots
         };
     }
 
@@ -614,6 +629,11 @@ export class SparkAmpSimulator {
 
         const slotByte = payload[1];
         const targetSlot = this.normalizeSlot(slotByte);
+
+        if (this.options.dropSlotUploads && slotByte < this.profile.presetSlots) {
+            this.log(`Dropped uploaded preset for slot ${slotByte} (--drop-slot-uploads)`);
+            return;
+        }
 
         this.presetBank.set(targetSlot, payload);
         this.log(`Stored uploaded preset into slot ${targetSlot}`);
